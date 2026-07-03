@@ -1,5 +1,5 @@
-**/node_modules
-**/.cache
+node_modules
+.cache
 build/
 openrpc.json
 refs-openrpc.json
@@ -14,3 +14,6 @@ api_versioned_docs/
 api_versioned_sidebars/
 api_versions.json
 docs-snapshot-*.tar.gz
+.env
+.env.local
+.env.*.local
