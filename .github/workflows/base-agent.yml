@@ -1,0 +1,20 @@
+name: Base Agent CI
+
+on:
+  push:
+    paths:
+      - 'base-agent/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: base-agent
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - run: node src/index.js
