@@ -15,21 +15,16 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     environment: production
-
     steps:
       - uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-
       - name: Install
         run: npm install
-
       - name: Deploy AgentExecutor
         env:
           BASE_RPC_URL: ${{ secrets.BASE_RPC_URL }}
@@ -43,3 +38,10 @@ jobs:
           else
             npx hardhat run scripts/deploy.js --network base
           fi
+      - name: Export deployment
+        run: node scripts/export-deployment-artifact.js
+      - name: Upload deployment artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-${{ inputs.network }}
+          path: deployments/
