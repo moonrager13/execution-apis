@@ -1,0 +1,10 @@
+{
+  "baseSepolia": {
+    "factory": "",
+    "version": "set-after-confirmation"
+  },
+  "baseMainnet": {
+    "factory": "",
+    "version": "set-after-confirmation"
+  }
+}
