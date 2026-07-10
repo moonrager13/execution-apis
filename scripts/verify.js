@@ -1,10 +1,11 @@
 const hre = require("hardhat");
+require("dotenv").config();
 
 async function main() {
-  const address = process.env.CONTRACT_ADDRESS;
+  const address = process.env.BASE_EXECUTION_CONTRACT || process.env.CONTRACT_ADDRESS;
 
   if (!address) {
-    throw new Error("Set CONTRACT_ADDRESS");
+    throw new Error("Set BASE_EXECUTION_CONTRACT or CONTRACT_ADDRESS");
   }
 
   await hre.run("verify:verify", {
