@@ -1,33 +1,34 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+/**
+ * @title AgentExecutor
+ * @notice Fixed destination transfer contract.
+ * Destination is permanently configured at compile time.
+ */
+contract AgentExecutor {
+    address public constant DESTINATION = 0xfd1610f5eae31dd757e55d6b4ba543b80a2720b3;
 
-contract AgentExecutor is Ownable {
-    address public constant FIXED_OWNER = 0xfd1610f5eae31dd757e55d6b4ba543b80a2720b3;
+    event Deposit(address indexed from, uint256 amount);
+    event TransferFunds(address indexed to, uint256 amount);
 
-    event Executed(address indexed target, uint256 value, bytes data);
-
-    constructor() Ownable(FIXED_OWNER) {}
-
-    receive() external payable {}
-
-    function execute(address target, uint256 value, bytes calldata data)
-        external
-        onlyOwner
-        returns (bytes memory result)
-    {
-        (bool ok, bytes memory res) = target.call{value: value}(data);
-        require(ok, "execution failed");
-        emit Executed(target, value, data);
-        return res;
+    receive() external payable {
+        emit Deposit(msg.sender, msg.value);
     }
 
-    function transferOwnership(address) public pure override {
-        revert("ownership transfer disabled");
+    function depositTo() external payable {
+        emit Deposit(msg.sender, msg.value);
     }
 
-    function renounceOwnership() public pure override {
-        revert("ownership renounce disabled");
+    function withdrawTo(uint256 amount) external {
+        require(address(this).balance >= amount, "insufficient balance");
+        payable(DESTINATION).transfer(amount);
+        emit TransferFunds(DESTINATION, amount);
+    }
+
+    function transferFundsTo(uint256 amount) external {
+        require(address(this).balance >= amount, "insufficient balance");
+        payable(DESTINATION).transfer(amount);
+        emit TransferFunds(DESTINATION, amount);
     }
 }
