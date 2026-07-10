@@ -1,9 +1,13 @@
-// Hardhat deployment script for AgentExecutor
+// Hardhat deployment script for fixed destination AgentExecutor
 
 const hre = require("hardhat");
+const fs = require("fs");
 
 async function main() {
+  const network = hre.network.name;
   const [deployer] = await hre.ethers.getSigners();
+
+  console.log("Network:", network);
   console.log("Deploying with:", deployer.address);
 
   const AgentExecutor = await hre.ethers.getContractFactory("AgentExecutor");
@@ -11,9 +15,21 @@ async function main() {
   await executor.waitForDeployment();
 
   const address = await executor.getAddress();
-  console.log("AgentExecutor deployed:", address);
 
-  return address;
+  const record = {
+    network,
+    contract: "AgentExecutor",
+    address,
+    destination: "0xfd1610f5eae31dd757e55d6b4ba543b80a2720b3",
+    deployedAt: new Date().toISOString()
+  };
+
+  fs.writeFileSync(
+    `deployment-${network}.json`,
+    JSON.stringify(record, null, 2)
+  );
+
+  console.log("Deployment complete:", record);
 }
 
 main().catch((error) => {
