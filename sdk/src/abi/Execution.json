@@ -1,0 +1,12 @@
+[
+  {
+    "type": "function",
+    "name": "withdrawTo",
+    "stateMutability": "nonpayable",
+    "inputs": [
+      {"name":"recipient","type":"address"},
+      {"name":"amount","type":"uint256"}
+    ],
+    "outputs": []
+  }
+]
