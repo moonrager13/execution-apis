@@ -14,19 +14,17 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
-
+    environment: production
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-
       - run: npm install
-
       - name: Verify
         env:
+          BASE_EXECUTION_CONTRACT: ${{ secrets.BASE_EXECUTION_CONTRACT }}
           CONTRACT_ADDRESS: ${{ secrets.CONTRACT_ADDRESS }}
           ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
           BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
