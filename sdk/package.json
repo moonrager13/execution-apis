@@ -1,0 +1,11 @@
+{
+  "name": "@moonrager13/base-execution-sdk",
+  "version": "0.1.0",
+  "type": "module",
+  "private": false,
+  "scripts": {"build": "echo sdk build"},
+  "dependencies": {
+    "ethers": "^6.10.0",
+    "dotenv": "^16.3.1"
+  }
+}
