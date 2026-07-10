@@ -11,8 +11,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm install
-      - run: npm run compile
-      - run: npm test
+      - run: cd base-agent && npm install
+      - run: cd base-agent && npm run compile
+      - run: cd base-agent && npm test
       - name: Deployment readiness
         run: echo "Configure Base RPC and signing secrets before deployment"
