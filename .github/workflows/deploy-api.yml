@@ -32,12 +32,11 @@ jobs:
       - name: Build Docker image
         run: docker build -t execution-api .
 
-      # Deployment target credentials can be added here.
-      # Supported examples:
-      # - Docker registry push
-      # - Railway deploy
-      # - Render deploy hook
-      # - Fly.io deploy
+      - name: Deploy to Railway
+        uses: bervProject/railway-deploy@main
+        with:
+          railway_token: ${{ secrets.RAILWAY_TOKEN }}
+          service: ${{ secrets.RAILWAY_SERVICE }}
 
-      - name: Deployment ready
-        run: echo "Build completed. Add hosting provider secrets to enable automatic deployment."
+      - name: Deployment complete
+        run: echo "Execution API deployed to Railway"
