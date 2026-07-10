@@ -14,3 +14,5 @@ jobs:
       - run: npm install
       - run: npm run compile
       - run: npm test
+      - name: Deployment readiness
+        run: echo "Configure Base RPC and signing secrets before deployment"
