@@ -28,29 +28,22 @@ jobs:
           cache: npm
 
       - name: Install
-        run: npm ci
+        run: cd base-agent && npm ci
 
       - name: Compile
-        run: npm run compile
+        run: cd base-agent && npm run compile
 
       - name: Test
-        run: npm test
+        run: cd base-agent && npm test
 
       - name: Deploy Base Mainnet
         env:
           BASE_RPC_URL: ${{ secrets.BASE_RPC_URL }}
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
-        run: npm run deploy:base
+        run: cd base-agent && npm run deploy:base
 
       - name: Verify Deployment
         env:
-          AGENT_EXECUTOR_ADDRESS: ${{ secrets.AGENT_EXECUTOR_ADDRESS }}
-        run: node agent/verify-after-deploy.js
-
-      - name: Start Agent Workflow
-        env:
-          BASE_RPC_URL: ${{ secrets.BASE_RPC_URL }}
-          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-          AGENT_APPROVED: 'false'
-        run: npm run agent:execute
+          CONTRACT_ADDRESS: ${{ secrets.CONTRACT_ADDRESS }}
+        run: cd base-agent && node tasks/verify.js
