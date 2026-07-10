@@ -1,0 +1,14 @@
+{
+  "contracts": {
+    "BaseAgentVault": "",
+    "BarzAdapter": "",
+    "EntryPointExecutor": ""
+  },
+  "verification": {
+    "enabled": true,
+    "explorer": "basescan"
+  },
+  "security": {
+    "privateKeys": "github-secrets-only"
+  }
+}
