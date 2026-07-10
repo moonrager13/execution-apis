@@ -1,0 +1,36 @@
+name: Agent Worker
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/15 * * * *"
+
+jobs:
+  agent:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run agent checks
+        env:
+          BASE_RPC_URL: ${{ secrets.BASE_RPC_URL }}
+          NETWORK: ${{ secrets.NETWORK }}
+          DESTINATION_ADDRESS: ${{ secrets.DESTINATION_ADDRESS }}
+          WITHDRAW_AMOUNT_WEI: ${{ secrets.WITHDRAW_AMOUNT_WEI }}
+          AUTO_EXECUTE: false
+        run: node agent/execute.js
+
+      - name: Upload agent log
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-run-log
+          path: .
