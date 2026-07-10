@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "description": "Collection of JSON-RPC APIs provided by Ethereum 1.0 clients",
   "main": "index.js",
-  "engines": {"node": ">=18.0.0", "npm": ">=9.0.0"},
+  "engines": {"node": ">=22.0.0", "npm": ">=10.0.0"},
   "scripts": {
     "build": "make build",
     "build:spec": "make build",
@@ -16,6 +16,7 @@
     "deploy:hardhat": "hardhat run scripts/deploy.js --network hardhat",
     "deploy:base": "hardhat run scripts/deploy.js --network base",
     "deploy:mainnet": "hardhat run scripts/deploy.js --network mainnet",
+    "agent:execute": "node agent/execute.js",
     "test": "hardhat test",
     "compile": "hardhat compile",
     "verify": "hardhat verify"
