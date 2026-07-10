@@ -1,0 +1,43 @@
+name: Deploy Execution API
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: latest
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build API
+        run: npm run build
+
+      - name: Build Docker image
+        run: docker build -t execution-api .
+
+      # Deployment target credentials can be added here.
+      # Supported examples:
+      # - Docker registry push
+      # - Railway deploy
+      # - Render deploy hook
+      # - Fly.io deploy
+
+      - name: Deployment ready
+        run: echo "Build completed. Add hosting provider secrets to enable automatic deployment."
