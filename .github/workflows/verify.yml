@@ -1,0 +1,33 @@
+name: Verify Contract
+
+on:
+  workflow_dispatch:
+    inputs:
+      network:
+        required: true
+        default: base
+        type: choice
+        options:
+          - base
+          - mainnet
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm install
+
+      - name: Verify
+        env:
+          CONTRACT_ADDRESS: ${{ secrets.CONTRACT_ADDRESS }}
+          ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
+          BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
+        run: npx hardhat run scripts/verify.js --network ${{ inputs.network }}
