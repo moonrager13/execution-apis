@@ -1,25 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-/**
- * @title AgentExecutor
- * @notice Owner-controlled execution contract.
- * Agents prepare requests; owner controls authorization.
- */
-contract AgentExecutor {
-    address public owner;
+import "@openzeppelin/contracts/access/Ownable.sol";
 
+contract AgentExecutor is Ownable {
     event Executed(address indexed target, uint256 value, bytes data);
-    event OwnershipTransferred(address indexed oldOwner, address indexed newOwner);
 
-    modifier onlyOwner() {
-        require(msg.sender == owner, "not owner");
-        _;
-    }
-
-    constructor() {
-        owner = msg.sender;
-    }
+    constructor() Ownable(msg.sender) {}
 
     receive() external payable {}
 
@@ -32,11 +19,5 @@ contract AgentExecutor {
         require(ok, "execution failed");
         emit Executed(target, value, data);
         return res;
-    }
-
-    function transferOwnership(address newOwner) external onlyOwner {
-        require(newOwner != address(0), "zero address");
-        emit OwnershipTransferred(owner, newOwner);
-        owner = newOwner;
     }
 }
