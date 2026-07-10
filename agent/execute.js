@@ -20,6 +20,10 @@ async function run() {
   require("./simulate-withdrawal");
   require("./base-wallet-signer");
   require("./verify-deployment");
+
+  return deployment;
 }
+
+module.exports = { run };
 
 run().catch(console.error);
