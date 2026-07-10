@@ -1,0 +1,11 @@
+{
+  "network": "base",
+  "mode": "simulation",
+  "approvalRequired": true,
+  "allowedActions": [
+    "deploy",
+    "verify",
+    "readContract"
+  ],
+  "signer": "external"
+}
