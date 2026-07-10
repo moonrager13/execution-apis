@@ -10,7 +10,7 @@ async function run() {
   const deployment = loadDeployment();
 
   const request = {
-    network: "base",
+    network: process.env.NETWORK || "base",
     contractAddress: deployment.contractAddress || deployment.address,
     recipient: process.env.DESTINATION_ADDRESS,
     amount: process.env.WITHDRAW_AMOUNT_WEI
@@ -21,10 +21,21 @@ async function run() {
     destination: request.recipient
   });
 
-  audit("withdrawal_prepared", request);
+  audit("withdrawal_checked", request);
+
+  const autoExecute = process.env.AUTO_EXECUTE === "true";
+
+  if (!autoExecute) {
+    return {
+      status: "awaiting_approval",
+      request
+    };
+  }
+
+  audit("withdrawal_ready_for_executor", request);
 
   return {
-    status: "awaiting_approval",
+    status: "ready_for_protected_executor",
     request
   };
 }
