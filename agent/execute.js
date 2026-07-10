@@ -1,4 +1,5 @@
 require("dotenv").config();
+
 const validateTransaction = require("./transaction-guard");
 const loadDeployment = require("./deployment-loader");
 const audit = require("./audit-log");
@@ -7,21 +8,25 @@ async function run() {
   console.log("Starting Base execution agent...");
 
   const deployment = loadDeployment();
-  process.env.AGENT_EXECUTOR_ADDRESS = deployment.address;
+
+  const request = {
+    network: "base",
+    contractAddress: deployment.contractAddress || deployment.address,
+    recipient: process.env.DESTINATION_ADDRESS,
+    amount: process.env.WITHDRAW_AMOUNT_WEI
+  };
 
   validateTransaction({
-    amount: process.env.WITHDRAW_AMOUNT_WEI,
-    destination: deployment.destination
+    amount: request.amount,
+    destination: request.recipient
   });
 
-  audit("agent_start", deployment);
+  audit("withdrawal_prepared", request);
 
-  require("./approval-flow");
-  require("./simulate-withdrawal");
-  require("./base-wallet-signer");
-  require("./verify-deployment");
-
-  return deployment;
+  return {
+    status: "awaiting_approval",
+    request
+  };
 }
 
 module.exports = { run };
