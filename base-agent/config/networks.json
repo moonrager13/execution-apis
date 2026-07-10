@@ -1,0 +1,12 @@
+{
+  "baseSepolia": {
+    "chainId": 84532,
+    "entryPoint": "",
+    "barzFactory": ""
+  },
+  "baseMainnet": {
+    "chainId": 8453,
+    "entryPoint": "",
+    "barzFactory": ""
+  }
+}
