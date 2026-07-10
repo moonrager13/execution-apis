@@ -22,7 +22,7 @@ function slugify(s) {
 }
 
 function escapeFrontmatter(s) {
-  return String(s).replace(/"/g, '\\"');
+  return String(s).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 }
 
 async function fetchReleaseByTag(repo, tag, token) {
