@@ -1,14 +1,15 @@
 {
-  "name": "execution-apis",
+  "name": "Base Agent Development",
   "image": "mcr.microsoft.com/devcontainers/typescript-node:latest",
   "features": {},
-  "postCreateCommand": "npm install",
-  "forwardPorts": [3000],
+  "postCreateCommand": "npm install && cd base-agent && npm install",
+  "forwardPorts": [3000, 8545],
   "customizations": {
     "vscode": {
       "extensions": [
         "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode"
+        "esbenp.prettier-vscode",
+        "NomicFoundation.hardhat-solidity"
       ]
     }
   }
