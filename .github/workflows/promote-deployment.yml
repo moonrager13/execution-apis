@@ -1,0 +1,47 @@
+name: Promote Agent Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: Deployment stage
+        required: true
+        type: choice
+        options:
+          - sepolia
+          - base-mainnet
+          - ethereum-mainnet
+      confirm:
+        description: Type APPROVE to continue
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    if: github.event.inputs.confirm == 'APPROVE'
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.stage }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run compile
+      - run: npm test
+
+      - name: Deploy selected stage
+        env:
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          BASE_RPC_URL: ${{ secrets.BASE_RPC_URL }}
+          MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
+        run: |
+          if [ "${{ github.event.inputs.stage }}" = "ethereum-mainnet" ]; then
+            npm run deploy:mainnet
+          else
+            npm run deploy:base
+          fi
