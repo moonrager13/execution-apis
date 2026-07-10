@@ -1,0 +1,32 @@
+name: Signing Gate Dry Run
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - feature/signing-gate-agent
+
+jobs:
+  dry-run:
+    runs-on: ubuntu-latest
+
+    env:
+      DEBUG_LOGS: true
+      AUTO_EXECUTE: false
+      NETWORK: base
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run signing gate dry run
+        run: node agent/execute.js
