@@ -1,0 +1,83 @@
+{
+	"compiler": {
+		"version": "0.8.34+commit.80d5c536"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "account",
+						"type": "address"
+					}
+				],
+				"name": "AccountCreated",
+				"type": "event"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "factory",
+						"type": "address"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "salt",
+						"type": "bytes32"
+					}
+				],
+				"name": "createBarzAccount",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "account",
+						"type": "address"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"base-agent/contracts/BarzDeploymentAdapter.sol": "BarzDeploymentAdapter"
+		},
+		"evmVersion": "osaka",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": true,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"base-agent/contracts/BarzDeploymentAdapter.sol": {
+			"keccak256": "0x05708c7d4a5f4ddd0b0504992213d3bcd2c411e8ddd8dea6c35f32163b5c3b66",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://e21b7230a53464c66854bf93aad8b3b9885166d95f1442ff65361a75bd26163f",
+				"dweb:/ipfs/Qmbr6USM3ACoLxrQatmvnKDSTdTLD7PyDihk73xjjLcMuV"
+			]
+		}
+	},
+	"version": 1
+}

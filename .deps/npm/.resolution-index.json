@@ -64,5 +64,13 @@
         "file": "contracts/AgentExecutor.sol"
       }
     }
+  },
+  "base-agent/contracts/BarzDeploymentAdapter.sol": {
+    "__sources__": {
+      "base-agent/contracts/BarzDeploymentAdapter.sol": {
+        "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\n\ninterface IBarzFactory {\n    function createAccount(bytes32 salt) external returns (address);\n}\n\ncontract BarzDeploymentAdapter {\n    event AccountCreated(address account);\n\n    function createBarzAccount(address factory, bytes32 salt) external returns (address account) {\n        account = IBarzFactory(factory).createAccount(salt);\n        emit AccountCreated(account);\n    }\n}\n",
+        "file": "base-agent/contracts/BarzDeploymentAdapter.sol"
+      }
+    }
   }
 }
