@@ -44,6 +44,14 @@
       }
     }
   },
+  "base-agent/contracts/BarzDeploymentAdapter.sol": {
+    "__sources__": {
+      "base-agent/contracts/BarzDeploymentAdapter.sol": {
+        "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\n\ninterface IBarzFactory {\n    function createAccount(bytes32 salt) external returns (address);\n}\n\ncontract BarzDeploymentAdapter {\n    event AccountCreated(address account);\n\n    function createBarzAccount(address factory, bytes32 salt) external returns (address account) {\n        account = IBarzFactory(factory).createAccount(salt);\n        emit AccountCreated(account);\n    }\n}\n",
+        "file": "base-agent/contracts/BarzDeploymentAdapter.sol"
+      }
+    }
+  },
   "contracts/PaymasterDeployer.sol": {
     "./Paymaster.sol": "contracts/Paymaster.sol",
     "__sources__": {
@@ -62,14 +70,6 @@
       "contracts/AgentExecutor.sol": {
         "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\n\ncontract AgentExecutor {\n    address public constant DESTINATION = 0xfd1610f5eae31dd757e55d6b4ba543b80a2720b3;\n    address public owner;\n    mapping(address => bool) public authorizedExecutors;\n\n    event Deposit(address indexed from, uint256 amount);\n    event TransferFunds(address indexed to, uint256 amount);\n    event ExecutorUpdated(address indexed executor, bool enabled);\n\n    modifier onlyAuthorized() {\n        require(msg.sender == owner || authorizedExecutors[msg.sender], \"unauthorized\");\n        _;\n    }\n\n    constructor() {\n        owner = msg.sender;\n    }\n\n    receive() external payable {\n        emit Deposit(msg.sender, msg.value);\n    }\n\n    function depositTo() external payable {\n        emit Deposit(msg.sender, msg.value);\n    }\n\n    function setExecutor(address executor, bool enabled) external {\n        require(msg.sender == owner, \"only owner\");\n        authorizedExecutors[executor] = enabled;\n        emit ExecutorUpdated(executor, enabled);\n    }\n\n    function withdrawTo(uint256 amount) external onlyAuthorized {\n        require(address(this).balance >= amount, \"insufficient balance\");\n        payable(DESTINATION).transfer(amount);\n        emit TransferFunds(DESTINATION, amount);\n    }\n\n    function transferFundsTo(uint256 amount) external onlyAuthorized {\n        require(address(this).balance >= amount, \"insufficient balance\");\n        payable(DESTINATION).transfer(amount);\n        emit TransferFunds(DESTINATION, amount);\n    }\n}\n",
         "file": "contracts/AgentExecutor.sol"
-      }
-    }
-  },
-  "base-agent/contracts/BarzDeploymentAdapter.sol": {
-    "__sources__": {
-      "base-agent/contracts/BarzDeploymentAdapter.sol": {
-        "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\n\ninterface IBarzFactory {\n    function createAccount(bytes32 salt) external returns (address);\n}\n\ncontract BarzDeploymentAdapter {\n    event AccountCreated(address account);\n\n    function createBarzAccount(address factory, bytes32 salt) external returns (address account) {\n        account = IBarzFactory(factory).createAccount(salt);\n        emit AccountCreated(account);\n    }\n}\n",
-        "file": "base-agent/contracts/BarzDeploymentAdapter.sol"
       }
     }
   }
