@@ -1,6 +1,7 @@
 # Paymaster Contract Deployment Guide
 
 ## Overview
+
 This guide provides instructions for deploying the Paymaster contract to various networks.
 
 ## Prerequisites
@@ -27,6 +28,7 @@ cp .env.example .env
 ```
 
 Edit `.env` and add:
+
 - PRIVATE_KEY - Your deployment account private key
 - SEPOLIA_RPC_URL - Sepolia testnet RPC endpoint
 - MAINNET_RPC_URL - Mainnet RPC endpoint
@@ -89,19 +91,23 @@ After deployment, addresses are saved to `deployments/{network}.json`
 ## Contract Functions
 
 ### Payable Functions
+
 - pay() - Accept ETH payments
 - receive() - Fallback to accept ETH
 
 ### Token Functions
+
 - receiveToken(token, amount) - Accept ERC20 tokens
 - approveSpender(token, spender) - Approve spender with max allowance
 - setPaymaster(token) - Set paymaster with max allowance
 
 ### Send Functions
+
 - sendETH(to, amount) - Send ETH to recipient
 - sendToken(token, to, amount) - Send tokens to recipient
 
 ### Getter Functions
+
 - getPaymasterAddress() - Get hardcoded paymaster address
 - getMaxAllowance() - Get max allowance value
 - getBalance(account) - Get account balance
