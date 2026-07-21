@@ -1,11 +1,13 @@
 name: Signing Gate Dry Run
 
 on:
+  workflow_dispatch:
   pull_request:
   push:
     branches:
       - main
       - feature/signing-gate-agent
+      - feature/wallet-interface
 
 jobs:
   dry-run:
