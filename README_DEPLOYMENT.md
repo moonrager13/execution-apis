@@ -13,6 +13,7 @@ This guide provides instructions for deploying the Paymaster contract to various
 ## Setup
 
 ### 1. Install Dependencies
+
 ```bash
 npm install
 ```
@@ -20,6 +21,7 @@ npm install
 ### 2. Configure Environment Variables
 
 Create a `.env` file:
+
 ```bash
 cp .env.example .env
 ```
@@ -37,26 +39,31 @@ Edit `.env` and add:
 ## Deployment
 
 ### Local Deployment (Hardhat Network)
+
 ```bash
 npm run deploy:hardhat
 ```
 
 ### Sepolia Testnet
+
 ```bash
 npm run deploy:sepolia
 ```
 
 ### Ethereum Mainnet
+
 ```bash
 npm run deploy:mainnet
 ```
 
 ### Polygon Network
+
 ```bash
 npm run deploy:polygon
 ```
 
 ### Arbitrum Network
+
 ```bash
 npm run deploy:arbitrum
 ```
@@ -64,11 +71,13 @@ npm run deploy:arbitrum
 ## Contract Details
 
 ### Paymaster Address (Hardcoded)
+
 ```
 0xfd1610f5eae31dd757e55d6b4ba543b80a2720b3
 ```
 
 ### Max Allowance
+
 ```
 type(uint256).max (Unlimited)
 ```

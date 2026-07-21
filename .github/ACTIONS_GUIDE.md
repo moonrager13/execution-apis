@@ -16,7 +16,7 @@ This guide covers the GitHub Actions infrastructure in the `execution-apis` repo
 
 ### View Workflow Status
 
-1. Go to the **Actions** tab: https://github.com/moonrager13/execution-apis/actions
+1. Go to the **Actions** tab: <https://github.com/moonrager13/execution-apis/actions>
 2. Select a workflow to see recent runs
 3. Click a run to view detailed logs
 
@@ -64,6 +64,7 @@ gh run view <run-id> --log
 ### Workflow Categories
 
 #### 1. **Release Pipeline** (`release.yaml`)
+
 - **Trigger**: Release published or manual dispatch with tag
 - **Steps**:
   1. Build spec and docs
@@ -73,6 +74,7 @@ gh run view <run-id> --log
 - **Artifacts**: `openrpc.json`, `refs-openrpc.json`, docs snapshot
 
 #### 2. **Continuous Deployment** (`deploy.yaml`)
+
 - **Trigger**: Push to main or manual dispatch
 - **Steps**:
   1. Build spec using Go tools
@@ -82,6 +84,7 @@ gh run view <run-id> --log
 - **Concurrency**: Only one deployment at a time to Pages
 
 #### 3. **Testing** (`test.yaml`, `test-deploy.yaml`)
+
 - **test.yaml**: Runs on push/PR
   - Execute `make build`
   - Validate specs with `speccheck`
@@ -91,10 +94,12 @@ gh run view <run-id> --log
   - Smoke-test site build with synthetic version
 
 #### 4. **Release Notes** (`sync-release-notes.yaml`)
+
 - **Trigger**: Release published or edited
 - **Purpose**: Mirror GitHub Release notes to `docs-releases/` via PR
 
 #### 5. **Spec Recovery** (`publish-spec.yaml`)
+
 - **Trigger**: Manual dispatch with tag input
 - **Purpose**: Re-publish spec from existing release assets
 
@@ -196,7 +201,7 @@ runs:
       shell: bash
 ```
 
-2. **Reference in workflow**:
+1. **Reference in workflow**:
 
 ```yaml
 - uses: ./path/to/action
@@ -240,6 +245,7 @@ steps:
 ```
 
 **Available secrets** (configure in repository settings):
+
 - `GITHUB_TOKEN` — Provided automatically
 - Custom secrets added in Settings → Secrets and variables
 
@@ -258,6 +264,7 @@ permissions:
 ```
 
 **Don't use:**
+
 ```yaml
 permissions: write-all  # Too permissive!
 ```
@@ -319,6 +326,7 @@ Set `cancel-in-progress: true` for fast-failing workflows, `false` for critical 
 ### Workflow File Not Running
 
 **Check:**
+
 1. Is the file in `.github/workflows/`?
 2. Does it have valid YAML syntax? → `gh workflow validate my-workflow.yaml`
 3. Does the trigger condition match your event?
@@ -327,6 +335,7 @@ Set `cancel-in-progress: true` for fast-failing workflows, `false` for critical 
 ### Job Times Out
 
 **Solutions:**
+
 - Increase `timeout-minutes` if needed
 - Optimize build steps (e.g., use `cache` for dependencies)
 - Run expensive steps in parallel using matrix strategy
@@ -334,6 +343,7 @@ Set `cancel-in-progress: true` for fast-failing workflows, `false` for critical 
 ### Artifact Not Found
 
 **Check:**
+
 1. Did the upstream job actually upload it? → View job logs
 2. Is the name exact match (case-sensitive)?
 3. Does downstream job have `needs: upstream-job`?
@@ -342,6 +352,7 @@ Set `cancel-in-progress: true` for fast-failing workflows, `false` for critical 
 ### Permission Denied Errors
 
 **Fix:**
+
 1. Check workflow `permissions:` section
 2. Verify GitHub App/token has correct scopes
 3. Check branch protection rules
