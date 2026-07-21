@@ -1,10 +1,12 @@
 # Base Agent Setup
 
 ## Deployment targets
+
 - Base Mainnet
 - Ethereum Mainnet
 
 ## Components
+
 - Solidity contracts
 - Deployment scripts
 - Agent execution service
