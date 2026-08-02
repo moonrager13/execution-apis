@@ -1,0 +1,5 @@
+Trigger CI workflows: ci.yml and base-agent.yml
+
+This file was created automatically to trigger GitHub Actions runs for debugging per request.
+
+Timestamp: 2026-08-02T00:00:00Z
