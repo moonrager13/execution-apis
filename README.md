@@ -9,6 +9,11 @@ clients implement. It is the canonical interface between users and the network.
 This interface allows downstream tooling and infrastructure to treat different
 Ethereum clients as modules that can be swapped at will.
 
+### Prerequisites
+
+- **Node.js**: >= 22.0.0
+- **npm**: >= 10.0.0
+
 ### Contributing
 
 Please see
