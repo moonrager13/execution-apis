@@ -17,9 +17,8 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . .
-COPY --from=go-tools /app/tools/specgen /app/tools/specgen
-COPY --from=go-tools /app/tools/speccheck /app/tools/speccheck
-COPY --from=go-tools /app/tools/rpctestgen /app/tools/rpctestgen
+COPY --from=go-tools /usr/local/go /usr/local/go
+ENV PATH="/usr/local/go/bin:${PATH}"
 
 RUN npm run build
 
