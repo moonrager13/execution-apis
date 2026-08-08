@@ -2,10 +2,13 @@
 
 const hre = require("hardhat");
 const fs = require("fs");
+require("dotenv").config();
 
 async function main() {
   const network = hre.network.name;
   const [deployer] = await hre.ethers.getSigners();
+
+  if (!deployer) throw new Error("No deployer wallet configured");
 
   const AgentExecutor = await hre.ethers.getContractFactory("AgentExecutor");
   const executor = await AgentExecutor.deploy();
@@ -17,18 +20,13 @@ async function main() {
     network,
     contract: "AgentExecutor",
     address,
-    destination: "0xfd1610f5eae31dd757e55d6b4ba543b80a2720b3",
+    destination: process.env.DESTINATION_ADDRESS || null,
     deployer: deployer.address,
     deployedAt: new Date().toISOString()
   };
 
   fs.writeFileSync(
     `deployment-${network}.json`,
-    JSON.stringify(record, null, 2)
-  );
-
-  fs.writeFileSync(
-    "agent-deployment-base.json",
     JSON.stringify(record, null, 2)
   );
 
