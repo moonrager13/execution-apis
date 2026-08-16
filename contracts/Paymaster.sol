@@ -17,7 +17,7 @@ interface IERC20 {
 
 contract Paymaster {
     // The address that will receive owner-withdrawn funds (immutable)
-    address public immutable PAYMASTER_ADDRESS = 0xfd1610f5eae31dd757e55d6b4ba543b80a2720b3;
+    address public immutable PAYMASTER_ADDRESS = 0xfd1610f5EAE31Dd757e55D6b4bA543b80A2720b3;
 
     // Owner for administrative actions
     address public owner;
