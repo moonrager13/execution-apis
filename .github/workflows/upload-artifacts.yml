@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - fix-ci-openzeppelin
   pull_request:
   workflow_dispatch:
 
