@@ -4,12 +4,14 @@ on:
   push:
     branches:
       - main
+      - fix-lockfile-ci
   pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
   contents: write
-  actions: write
 
 jobs:
   build-and-upload:
@@ -26,12 +28,15 @@ jobs:
           node-version: '22'
           cache: npm
 
-      - name: Synchronize lockfile
+      - name: Synchronize lockfile on repair branch
+        if: github.event_name == 'push' && github.ref == 'refs/heads/fix-lockfile-ci'
         run: npm install --package-lock-only --ignore-scripts
 
-      - name: Commit synchronized lockfile
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      - name: Commit synchronized lockfile on repair branch
+        if: github.event_name == 'push' && github.ref == 'refs/heads/fix-lockfile-ci'
+        shell: bash
         run: |
+          set -euo pipefail
           if git diff --quiet -- package-lock.json; then
             echo "package-lock.json is already synchronized"
             exit 0
@@ -40,13 +45,21 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add package-lock.json
           git commit -m "chore: synchronize npm lockfile"
-          git push
+          git push origin HEAD:fix-lockfile-ci
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Install dependencies from lockfile
+        run: npm ci --ignore-scripts
 
       - name: Build OpenRPC specification
         run: make build
+
+      - name: Verify generated execution API artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s openrpc.json
+          test -s graphql.json
+          ls -lh openrpc.json graphql.json
 
       - name: Upload generated execution API artifacts
         uses: moonrager13/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
