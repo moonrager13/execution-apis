@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build-and-upload:
@@ -27,25 +27,6 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-
-      - name: Synchronize lockfile on repair branch
-        if: github.event_name == 'push' && github.ref == 'refs/heads/fix-lockfile-ci'
-        run: npm install --package-lock-only --ignore-scripts
-
-      - name: Commit synchronized lockfile on repair branch
-        if: github.event_name == 'push' && github.ref == 'refs/heads/fix-lockfile-ci'
-        shell: bash
-        run: |
-          set -euo pipefail
-          if git diff --quiet -- package-lock.json; then
-            echo "package-lock.json is already synchronized"
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add package-lock.json
-          git commit -m "chore: synchronize npm lockfile"
-          git push origin HEAD:fix-lockfile-ci
 
       - name: Install dependencies from lockfile
         run: npm ci --ignore-scripts
