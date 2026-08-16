@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 contract AgentExecutor {
-    address public constant DESTINATION = 0xfd1610f5eae31dd757e55d6b4ba543b80a2720b3;
+    address public constant DESTINATION = 0xfd1610f5EAE31Dd757e55D6b4bA543b80A2720b3;
     address public owner;
     mapping(address => bool) public authorizedExecutors;
 
