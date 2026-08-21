@@ -206,7 +206,7 @@ contract Paymaster {
         return address(this).balance;
     }
 
-    function getPaymasterAddress() external pure returns (address) {
+    function getPaymasterAddress() external view returns (address) {
         return PAYMASTER_ADDRESS;
     }
 
