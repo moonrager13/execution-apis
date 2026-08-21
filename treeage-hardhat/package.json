@@ -15,8 +15,8 @@
     "deploy:mainnet": "hardhat run scripts/deploy.js --network mainnet",
     "upgrade:sepolia": "hardhat run scripts/upgrade.js --network sepolia",
     "upgrade:mainnet": "hardhat run scripts/upgrade.js --network mainnet",
-    "verify:sepolia": "hardhat verify --network sepolia",
-    "verify:mainnet": "hardhat verify --network mainnet"
+    "verify:sepolia": "hardhat run scripts/verify.js --network sepolia",
+    "verify:mainnet": "hardhat run scripts/verify.js --network mainnet"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
