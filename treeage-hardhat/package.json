@@ -1,0 +1,24 @@
+{
+  "name": "treeage-upgradeable",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Production-oriented Hardhat project for a UUPS-upgradeable TreeAgeCalculator.",
+  "scripts": {
+    "clean": "hardhat clean",
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia",
+    "deploy:mainnet": "hardhat run scripts/deploy.js --network mainnet",
+    "upgrade:sepolia": "hardhat run scripts/upgrade.js --network sepolia",
+    "upgrade:mainnet": "hardhat run scripts/upgrade.js --network mainnet",
+    "verify:sepolia": "hardhat verify --network sepolia",
+    "verify:mainnet": "hardhat verify --network mainnet"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@openzeppelin/contracts-upgradeable": "^5.4.0",
+    "@openzeppelin/hardhat-upgrades": "^3.9.1",
+    "dotenv": "^16.4.7",
+    "hardhat": "^2.26.3"
+  }
+}
