@@ -7,8 +7,9 @@ describe("AgentExecutor transfers", function () {
     const contract = await Factory.deploy();
     await contract.waitForDeployment();
 
+    // Normalize the expected address so tests are checksum-insensitive
     expect(await contract.DESTINATION()).to.equal(
-      "0xfd1610f5eae31dd757e55d6b4ba543b80a2720b3"
+      ethers.getAddress("0xfd1610f5eae31dd757e55d6b4ba543b80a2720b3")
     );
   });
 });
