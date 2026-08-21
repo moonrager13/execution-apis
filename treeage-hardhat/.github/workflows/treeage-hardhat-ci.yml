@@ -1,0 +1,50 @@
+name: TreeAge Hardhat CI
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'treeage-hardhat/**'
+      - '.github/workflows/treeage-hardhat-ci.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'treeage-hardhat/**'
+      - '.github/workflows/treeage-hardhat-ci.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: treeage-hardhat-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: TreeAge compile and test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: treeage-hardhat
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: treeage-hardhat/package-lock.json
+
+      - name: Verify npm lockfile
+        run: test -f package-lock.json
+
+      - name: Clean install
+        run: npm ci
+
+      - name: Compile contracts
+        run: npm run compile
+
+      - name: Run test suite
+        run: npm test
