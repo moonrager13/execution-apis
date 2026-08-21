@@ -3,6 +3,10 @@
   "version": "2.0.0",
   "private": true,
   "description": "Production-oriented Hardhat project for a UUPS-upgradeable TreeAgeCalculator.",
+  "engines": {
+    "node": ">=22 <25",
+    "npm": ">=10"
+  },
   "scripts": {
     "clean": "hardhat clean",
     "compile": "hardhat compile",
