@@ -21,8 +21,15 @@ contract TreeAgeCalculatorUpgradeable is Initializable, OwnableUpgradeable, UUPS
     }
 
     function initialize(address initialOwner) public initializer {
-        __Ownable_init(initialOwner);
+        // OwnableUpgradeable.__Ownable_init does not accept an owner argument.
+        // Initialize ownership to msg.sender (the deployer), then transfer to initialOwner if provided.
+        __Ownable_init();
         __UUPSUpgradeable_init();
+
+        if (initialOwner != address(0) && initialOwner != owner()) {
+            // transferOwnership is public onlyOwner; this contract is currently owned by msg.sender from __Ownable_init()
+            transferOwnership(initialOwner);
+        }
     }
 
     function age(uint256 treeAgeInDays) public pure returns (uint256) {
