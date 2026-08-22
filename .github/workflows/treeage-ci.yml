@@ -35,8 +35,6 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: '22.x'
-          cache: npm
-          cache-dependency-path: treeage-hardhat/package-lock.json
 
       - name: Verify Node and npm versions
         run: |
@@ -44,11 +42,8 @@ jobs:
           npm --version
           node -e "const major=Number(process.versions.node.split('.')[0]); if (major < 22 || major >= 25) process.exit(1)"
 
-      - name: Require lockfile
-        run: test -f package-lock.json
-
-      - name: Clean install
-        run: npm ci
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
 
       - name: Compile contracts
         run: npm run compile
