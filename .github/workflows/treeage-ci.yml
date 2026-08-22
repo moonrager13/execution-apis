@@ -36,6 +36,7 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: '22.x'
+          cache: false
       - name: Verify Node and npm versions
         run: |
           node --version
