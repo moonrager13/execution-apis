@@ -11,7 +11,7 @@ matrix:
       run-together-limit: 256
     dictionary:
       wordlists:
-        - wordlist.txt
+        - .wordlist
       encoding: utf-8
     pipeline:
     - pyspelling.filters.context:
@@ -38,7 +38,7 @@ matrix:
       run-together-limit: 256
     dictionary:
       wordlists:
-        - wordlist.txt
+        - .wordlist
       encoding: utf-8
     pipeline:
     - pyspelling.filters.context:
