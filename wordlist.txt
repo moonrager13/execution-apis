@@ -1,8 +1,11 @@
 ACDT
 apis
 arg
+ABI
 BLS
 BN
+Barz
+barz
 attributesv
 besu
 blobandproofv
@@ -31,6 +34,7 @@ EIPS
 EL
 endian
 enum
+env
 EOA
 EOA's
 ERC
@@ -47,6 +51,7 @@ getblobsbundlev
 getblobsv
 getclientversionv
 graphql
+Getter
 gwei
 https
 interop
@@ -60,6 +65,8 @@ merkle
 MSM
 MUL
 multicallV
+multisig
+Multisig
 npm
 ommers
 openrpc
@@ -73,6 +80,7 @@ randao
 rlp
 rpc
 schemas
+SDK
 secp
 sha
 simulateV
@@ -87,6 +95,7 @@ txpool
 txs
 txt
 uint
+UUPS
 updatedv
 url
 UX
