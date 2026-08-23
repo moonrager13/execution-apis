@@ -7,7 +7,8 @@ describe("AgentExecutor transfers", function () {
     const contract = await Factory.deploy();
     await contract.waitForDeployment();
 
-    expect(await contract.DESTINATION()).to.equal(
+    const destination = await contract.DESTINATION();
+    expect(destination.toLowerCase()).to.equal(
       "0xfd1610f5eae31dd757e55d6b4ba543b80a2720b3"
     );
   });

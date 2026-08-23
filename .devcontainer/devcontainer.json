@@ -1,8 +1,8 @@
 {
-  "name": "Base Agent Development",
-  "image": "mcr.microsoft.com/devcontainers/typescript-node:latest",
-  "features": {},
-  "postCreateCommand": "npm install && cd base-agent && npm install",
+  "name": "Execution APIs - Node 22",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "postCreateCommand": "cd treeage-hardhat && npm install",
   "forwardPorts": [3000, 8545],
   "customizations": {
     "vscode": {
@@ -10,6 +10,12 @@
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
         "NomicFoundation.hardhat-solidity"
+      ]
+    },
+    "codespaces": {
+      "openFiles": [
+        "treeage-hardhat/README.md",
+        "treeage-hardhat/package.json"
       ]
     }
   }
