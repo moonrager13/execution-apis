@@ -160,5 +160,12 @@
         }
       }
     }
+  },
+  "script-runner": {
+    "defaultConfig": "default",
+    "customConfig": {
+      "baseConfiguration": "default",
+      "dependencies": []
+    }
   }
 }
