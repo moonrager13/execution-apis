@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.24;
 
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable@5.4.0/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable@5.4.0/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable@5.4.0/proxy/utils/UUPSUpgradeable.sol";
 
 library TreeAgeCalculatorLib {
     function age(uint256 treeAgeInDays) internal pure returns (uint256) {
