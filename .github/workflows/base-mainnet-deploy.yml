@@ -40,7 +40,7 @@ jobs:
           const { JsonRpcProvider, Wallet, formatEther } = require('ethers');
 
           async function main() {
-            const rpc = process.env.BASE_RPC_URL;
+            const rpc = process.env.BASE_RPC_URL || 'https://mainnet.base.org';
             const key = process.env.PRIVATE_KEY;
             const verifyKey = process.env.BASESCAN_API_KEY;
 
