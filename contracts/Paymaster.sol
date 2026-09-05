@@ -121,14 +121,15 @@ contract Paymaster {
     // ========== ERC20 receiving ==========
 
     /// Receive tokens from caller. Caller must approve this contract first.
-    function receiveToken(address token, uint256 amount) external {
+    function receiveToken(address token, uint256 amount) external nonReentrant {
         require(token != address(0), "Invalid token address");
         require(amount > 0, "Amount must be greater than 0");
 
-        _safeTransferFrom(token, msg.sender, address(this), amount);
-
+        // Effects first. If the token call fails, the whole transaction (including this state/event) reverts.
         tokenBalances[token][msg.sender] += amount;
         emit ReceivedToken(msg.sender, token, amount);
+
+        _safeTransferFrom(token, msg.sender, address(this), amount);
     }
 
     /// Allow a user to claim their recorded token balance; tokens are sent to the fixed PAYMASTER_ADDRESS.
@@ -152,22 +153,26 @@ contract Paymaster {
     // Approvals and paymaster funding are owner-managed.
 
     /// Approve a spender for a specific token with max allowance (owner only)
-    function approveSpender(address token, address spender) external onlyOwner {
+    function approveSpender(address token, address spender) external onlyOwner nonReentrant {
         require(token != address(0), "Invalid token address");
         require(spender != address(0), "Invalid spender address");
 
-        _safeApprove(token, spender, MAX_ALLOWANCE);
-
+        // Record effects before the external token call; a failed approval reverts these changes.
         spenderAllowances[token][spender] = MAX_ALLOWANCE;
         emit SpenderApproved(token, spender, MAX_ALLOWANCE);
+
+        _safeApprove(token, spender, MAX_ALLOWANCE);
     }
 
     /// Approve the fixed PAYMASTER_ADDRESS to spend contract-held tokens (owner only)
-    function approvePaymasterForToken(address token) external onlyOwner {
+    function approvePaymasterForToken(address token) external onlyOwner nonReentrant {
         require(token != address(0), "Invalid token address");
-        _safeApprove(token, PAYMASTER_ADDRESS, MAX_ALLOWANCE);
+
+        // Record effects before the external token call; a failed approval reverts these changes.
         spenderAllowances[token][PAYMASTER_ADDRESS] = MAX_ALLOWANCE;
         emit SpenderApproved(token, PAYMASTER_ADDRESS, MAX_ALLOWANCE);
+
+        _safeApprove(token, PAYMASTER_ADDRESS, MAX_ALLOWANCE);
     }
 
     /// Owner withdraw tokens from contract and send them to the fixed PAYMASTER_ADDRESS
