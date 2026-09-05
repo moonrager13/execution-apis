@@ -30,19 +30,29 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Preflight Base mainnet signer and RPC
+      - name: Preflight Base mainnet signer, RPC, and verification
         env:
           BASE_RPC_URL: ${{ secrets.BASE_RPC_URL }}
           PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY || secrets.PRIVATE_KEY }}
+          BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY || secrets.ETHERSCAN_API_KEY }}
         run: |
+          export BASE_RPC_URL="${BASE_RPC_URL:-https://mainnet.base.org}"
+          echo "BASE_RPC_URL=$BASE_RPC_URL" >> "$GITHUB_ENV"
+
           node <<'NODE'
           const { JsonRpcProvider, Wallet, formatEther } = require('ethers');
 
           async function main() {
             const rpc = process.env.BASE_RPC_URL;
             const key = process.env.PRIVATE_KEY;
-            if (!rpc) throw new Error('BASE_RPC_URL secret is required');
-            if (!key) throw new Error('DEPLOYER_PRIVATE_KEY or PRIVATE_KEY secret is required');
+            const verifyKey = process.env.BASESCAN_API_KEY;
+
+            if (!key) {
+              throw new Error('DEPLOYER_PRIVATE_KEY or PRIVATE_KEY GitHub Actions secret is required');
+            }
+            if (!verifyKey) {
+              throw new Error('BASESCAN_API_KEY or ETHERSCAN_API_KEY GitHub Actions secret is required before broadcast');
+            }
 
             const provider = new JsonRpcProvider(rpc);
             const network = await provider.getNetwork();
@@ -55,6 +65,7 @@ jobs:
             console.log(`Base mainnet chainId verified: ${network.chainId}`);
             console.log(`Deployer address: ${wallet.address}`);
             console.log(`Deployer balance: ${formatEther(balance)} ETH`);
+            console.log(`Verification credential: configured`);
             if (balance === 0n) throw new Error('Deployer has no ETH for gas');
           }
 
@@ -72,7 +83,6 @@ jobs:
 
       - name: Deploy AgentExecutor to Base mainnet
         env:
-          BASE_RPC_URL: ${{ secrets.BASE_RPC_URL }}
           PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY || secrets.PRIVATE_KEY }}
           DESTINATION_ADDRESS: ${{ secrets.DESTINATION_ADDRESS }}
         run: npm run deploy:base
@@ -87,8 +97,7 @@ jobs:
 
       - name: Verify on BaseScan
         env:
-          BASE_RPC_URL: ${{ secrets.BASE_RPC_URL }}
-          ETHERSCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
+          ETHERSCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY || secrets.ETHERSCAN_API_KEY }}
         run: npx hardhat verify --network base "$CONTRACT_ADDRESS"
 
       - name: Upload deployment record
