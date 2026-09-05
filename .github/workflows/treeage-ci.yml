@@ -16,8 +16,6 @@ on:
 permissions:
   contents: read
 
-timeout-minutes: 15
-
 concurrency:
   group: treeage-ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -26,6 +24,7 @@ jobs:
   test:
     name: TreeAge / Node 22 / compile + test
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: treeage-hardhat
