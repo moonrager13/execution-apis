@@ -6,9 +6,44 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
+  refresh-lockfile:
+    name: Refresh root npm lockfile
+    if: github.event_name == 'pull_request' && github.head_ref == 'agentkit/base'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR head branch
+        uses: actions/checkout@v4
+        with:
+          ref: agentkit/base
+          fetch-depth: 0
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Regenerate package-lock.json
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+
+      - name: Commit synchronized lockfile if changed
+        run: |
+          git add package-lock.json
+          if git diff --cached --quiet; then
+            echo "package-lock.json already synchronized"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: synchronize root npm lockfile"
+          git push origin HEAD:agentkit/base
+
   test-deploy:
     name: Test deployment
+    needs: refresh-lockfile
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
