@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.24;
 
-import "@openzeppelin/contracts-upgradeable@5.4.0/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable@5.4.0/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable@5.4.0/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 library TreeAgeCalculatorLib {
     function age(uint256 treeAgeInDays) internal pure returns (uint256) {
@@ -21,15 +21,9 @@ contract TreeAgeCalculatorUpgradeable is Initializable, OwnableUpgradeable, UUPS
     }
 
     function initialize(address initialOwner) public initializer {
-        // OwnableUpgradeable.__Ownable_init does not accept an owner argument.
-        // Initialize ownership to msg.sender (the deployer), then transfer to initialOwner if provided.
-        __Ownable_init();
+        address owner_ = initialOwner == address(0) ? msg.sender : initialOwner;
+        __Ownable_init(owner_);
         __UUPSUpgradeable_init();
-
-        if (initialOwner != address(0) && initialOwner != owner()) {
-            // transferOwnership is public onlyOwner; this contract is currently owned by msg.sender from __Ownable_init()
-            transferOwnership(initialOwner);
-        }
     }
 
     function age(uint256 treeAgeInDays) public pure returns (uint256) {
