@@ -13,3 +13,6 @@ jobs:
         uses: crytic/slither-action@v0.3.0
         with:
           target: .
+          node-version: 24
+          fail-on: low
+          slither-args: --exclude-dependencies
