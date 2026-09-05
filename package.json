@@ -10,6 +10,7 @@
     "build:test": "make test",
     "build:docs": "npm run build:spec && npm run build:docs:core",
     "build:docs:core": "npm run docs:copy && npm run build:docusaurus",
+    "build:docusaurus": "docusaurus build",
     "docs:copy": "cp README.md ./docs-api/docs/quickstart.md",
     "start": "docusaurus start",
     "serve": "docusaurus serve",
