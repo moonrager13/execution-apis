@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       confirm:
-        description: 'Type DEPLOY to authorize mainnet deployment'
+        description: 'Type DEPLOY to authorize Base mainnet deployment'
         required: true
         default: ''
 
@@ -27,23 +27,72 @@ jobs:
           node-version: 24
           cache: npm
 
-      - name: Install
-        run: cd base-agent && npm ci
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Compile
-        run: cd base-agent && npm run compile
-
-      - name: Test
-        run: cd base-agent && npm test
-
-      - name: Deploy Base Mainnet
+      - name: Preflight Base mainnet signer and RPC
         env:
           BASE_RPC_URL: ${{ secrets.BASE_RPC_URL }}
-          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-          BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
-        run: cd base-agent && npm run deploy:base
+          PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY || secrets.PRIVATE_KEY }}
+        run: |
+          node <<'NODE'
+          const { JsonRpcProvider, Wallet, formatEther } = require('ethers');
 
-      - name: Verify Deployment
+          async function main() {
+            const rpc = process.env.BASE_RPC_URL;
+            const key = process.env.PRIVATE_KEY;
+            if (!rpc) throw new Error('BASE_RPC_URL secret is required');
+            if (!key) throw new Error('DEPLOYER_PRIVATE_KEY or PRIVATE_KEY secret is required');
+
+            const provider = new JsonRpcProvider(rpc);
+            const network = await provider.getNetwork();
+            if (network.chainId !== 8453n) {
+              throw new Error(`Refusing deployment: expected Base mainnet chainId 8453, got ${network.chainId}`);
+            }
+
+            const wallet = new Wallet(key, provider);
+            const balance = await provider.getBalance(wallet.address);
+            console.log(`Base mainnet chainId verified: ${network.chainId}`);
+            console.log(`Deployer address: ${wallet.address}`);
+            console.log(`Deployer balance: ${formatEther(balance)} ETH`);
+            if (balance === 0n) throw new Error('Deployer has no ETH for gas');
+          }
+
+          main().catch((error) => {
+            console.error(error.message || error);
+            process.exit(1);
+          });
+          NODE
+
+      - name: Compile
+        run: npm run compile
+
+      - name: Test
+        run: npm test
+
+      - name: Deploy AgentExecutor to Base mainnet
         env:
-          CONTRACT_ADDRESS: ${{ secrets.CONTRACT_ADDRESS }}
-        run: cd base-agent && node tasks/verify.js
+          BASE_RPC_URL: ${{ secrets.BASE_RPC_URL }}
+          PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY || secrets.PRIVATE_KEY }}
+          DESTINATION_ADDRESS: ${{ secrets.DESTINATION_ADDRESS }}
+        run: npm run deploy:base
+
+      - name: Capture deployment address
+        run: |
+          test -f deployment-base.json
+          CONTRACT_ADDRESS="$(node -p "require('./deployment-base.json').address")"
+          test -n "$CONTRACT_ADDRESS"
+          echo "CONTRACT_ADDRESS=$CONTRACT_ADDRESS" >> "$GITHUB_ENV"
+          echo "Deployed AgentExecutor: $CONTRACT_ADDRESS"
+
+      - name: Verify on BaseScan
+        env:
+          BASE_RPC_URL: ${{ secrets.BASE_RPC_URL }}
+          ETHERSCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
+        run: npx hardhat verify --network base "$CONTRACT_ADDRESS"
+
+      - name: Upload deployment record
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-base-mainnet
+          path: deployment-base.json
