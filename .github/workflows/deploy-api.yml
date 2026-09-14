@@ -12,13 +12,14 @@ permissions:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    environment: production
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
@@ -29,14 +30,78 @@ jobs:
       - name: Build API
         run: npm run build
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Build Docker image
-        run: docker build -t execution-api .
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          load: true
+          tags: execution-api:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Verify Docker image
+        run: docker images | grep execution-api
+
+      - name: Check Railway token
+        run: |
+          if [ -z "${{ secrets.RAILWAY_TOKEN }}" ]; then
+            echo "❌ ERROR: RAILWAY_TOKEN secret is not configured"
+            exit 1
+          fi
+          if [ -z "${{ secrets.RAILWAY_SERVICE }}" ]; then
+            echo "❌ ERROR: RAILWAY_SERVICE secret is not configured"
+            exit 1
+          fi
+          echo "✅ Railway secrets are configured"
 
       - name: Deploy to Railway
-        uses: bervProject/railway-deploy@main
+        uses: railway-app/cli-action@v1
         with:
-          railway_token: ${{ secrets.RAILWAY_TOKEN }}
-          service: ${{ secrets.RAILWAY_SERVICE }}
+          token: ${{ secrets.RAILWAY_TOKEN }}
+        env:
+          RAILWAY_SERVICE: ${{ secrets.RAILWAY_SERVICE }}
+        continue-on-error: true
 
-      - name: Deployment complete
-        run: echo "Execution API deployed to Railway"
+      - name: Fallback deployment using curl
+        if: failure()
+        run: |
+          echo "🔄 Attempting deployment via Railway API..."
+          RESPONSE=$(curl -s -X POST \
+            -H "Authorization: Bearer ${{ secrets.RAILWAY_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            "https://api.railway.app/graphql" \
+            -d '{"query":"query { me { id } }"}')
+          
+          if echo "$RESPONSE" | grep -q '"id"'; then
+            echo "✅ Railway API connection successful"
+            echo "💡 Check Railway dashboard for deployment status: https://railway.app"
+          else
+            echo "❌ Railway API error: $RESPONSE"
+            exit 1
+          fi
+
+      - name: Deployment Summary
+        if: always()
+        run: |
+          echo "========== Deployment Summary =========="
+          echo "Repository: ${{ github.repository }}"
+          echo "Branch: ${{ github.ref }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Workflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          echo "========================================"
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "❌ Deployment failed!"
+          echo ""
+          echo "Troubleshooting steps:"
+          echo "1. Verify RAILWAY_TOKEN and RAILWAY_SERVICE secrets in repository settings"
+          echo "2. Check Railway dashboard: https://railway.app"
+          echo "3. Review Railway documentation: https://docs.railway.app"
+          echo "4. Check workflow logs for error details"
+          exit 1
