@@ -15,6 +15,6 @@ jobs:
       - run: npx hardhat compile
       - run: npx hardhat run scripts/deploy-base-agent.ts --network base
         env:
-          BASE_RPC_URL: ${{ secrets.BASE_RPC_URL }}
-          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-          BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
+          BASE_RPC_URL: ${{ secrets.BASE || secrets.RPC }}
+          PRIVATE_KEY: ${{ secrets.DEPLOYER }}
+          BASESCAN_API_KEY: ${{ secrets.BASESCAN }}
