@@ -32,9 +32,9 @@ jobs:
 
       - name: Preflight Base mainnet signer, RPC, and verification
         env:
-          BASE_RPC_URL: ${{ secrets.BASE_RPC_URL || 'https://mainnet.base.org' }}
-          PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY || secrets.PRIVATE_KEY }}
-          BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
+          BASE_RPC_URL: ${{ secrets.BASE || secrets.RPC || 'https://mainnet.base.org' }}
+          PRIVATE_KEY: ${{ secrets.DEPLOYER }}
+          BASESCAN_API_KEY: ${{ secrets.BASESCAN }}
         run: |
           node <<'NODE'
           const { JsonRpcProvider, Wallet, formatEther } = require('ethers');
@@ -45,10 +45,10 @@ jobs:
             const verifyKey = process.env.BASESCAN_API_KEY;
 
             if (!key) {
-              throw new Error('DEPLOYER_PRIVATE_KEY or PRIVATE_KEY GitHub Actions secret is required');
+              throw new Error('DEPLOYER secret is required');
             }
             if (!verifyKey) {
-              throw new Error('BASESCAN_API_KEY GitHub Actions secret is required before broadcast');
+              throw new Error('BASESCAN secret is required before broadcast');
             }
 
             const provider = new JsonRpcProvider(rpc);
@@ -80,8 +80,8 @@ jobs:
 
       - name: Deploy AgentExecutor to Base mainnet
         env:
-          BASE_RPC_URL: ${{ secrets.BASE_RPC_URL || 'https://mainnet.base.org' }}
-          PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY || secrets.PRIVATE_KEY }}
+          BASE_RPC_URL: ${{ secrets.BASE || secrets.RPC || 'https://mainnet.base.org' }}
+          PRIVATE_KEY: ${{ secrets.DEPLOYER }}
           DESTINATION_ADDRESS: ${{ secrets.DESTINATION_ADDRESS }}
         run: npm run deploy:base
 
@@ -95,8 +95,8 @@ jobs:
 
       - name: Verify on BaseScan
         env:
-          BASE_RPC_URL: ${{ secrets.BASE_RPC_URL || 'https://mainnet.base.org' }}
-          ETHERSCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
+          BASE_RPC_URL: ${{ secrets.BASE || secrets.RPC || 'https://mainnet.base.org' }}
+          ETHERSCAN_API_KEY: ${{ secrets.BASESCAN }}
         run: npx hardhat verify --network base "$CONTRACT_ADDRESS"
 
       - name: Upload deployment record
