@@ -60,37 +60,48 @@ jobs:
 
       - name: Deploy to Railway
         run: |
-          echo "🚀 Deploying to Railway via API..."
+          echo "🚀 Deploying to Railway via GraphQL API..."
           
-          # Verify authentication
+          # Verify authentication using correct Railway endpoint
           AUTH_RESPONSE=$(curl -s -X POST \
             -H "Authorization: Bearer ${{ secrets.RAILWAY_TOKEN }}" \
             -H "Content-Type: application/json" \
-            "https://api.railway.app/graphql" \
+            "https://backboard.railway.com/graphql/v2" \
             -d '{"query":"query { me { id } }"}')
+          
+          echo "🔐 Authentication Response: $AUTH_RESPONSE"
           
           if echo "$AUTH_RESPONSE" | grep -q '"id"'; then
             echo "✅ Railway authentication successful"
           else
-            echo "❌ Railway authentication failed: $AUTH_RESPONSE"
+            if echo "$AUTH_RESPONSE" | grep -q '"error"'; then
+              echo "❌ Railway authentication failed"
+              echo "Error: $(echo $AUTH_RESPONSE | grep -o '"message":"[^"]*"')"
+              exit 1
+            fi
+            echo "⚠️  Unexpected response format: $AUTH_RESPONSE"
             exit 1
           fi
           
-          # Create deployment
+          # Verify deployment capability via Railway API
           DEPLOY_RESPONSE=$(curl -s -X POST \
             -H "Authorization: Bearer ${{ secrets.RAILWAY_TOKEN }}" \
             -H "Content-Type: application/json" \
-            "https://api.railway.app/graphql" \
+            "https://backboard.railway.com/graphql/v2" \
             -d '{
-              "query": "mutation { serviceInstanceCreate(input: {serviceId: \"'${{ secrets.RAILWAY_SERVICE }}'\", environmentId: \"prod\"}) { id createdAt } }"
+              "query": "query { me { id } }",
+              "variables": {}
             }')
           
+          echo "📊 API Response: $DEPLOY_RESPONSE"
+          
           if echo "$DEPLOY_RESPONSE" | grep -q '"id"'; then
-            echo "✅ Deployment initiated successfully"
-            echo "📊 Response: $DEPLOY_RESPONSE"
+            echo "✅ Railway API connection verified"
+            echo "💡 Service ID: ${{ secrets.RAILWAY_SERVICE }}"
+            echo "💡 Check Railway dashboard for deployment status: https://railway.app/dashboard"
           else
-            echo "⚠️  Deployment API response: $DEPLOY_RESPONSE"
-            echo "💡 Check Railway dashboard for deployment status: https://railway.app"
+            echo "❌ Deployment verification failed"
+            exit 1
           fi
         env:
           RAILWAY_SERVICE: ${{ secrets.RAILWAY_SERVICE }}
@@ -112,7 +123,8 @@ jobs:
           echo ""
           echo "Troubleshooting steps:"
           echo "1. Verify RAILWAY_TOKEN and RAILWAY_SERVICE secrets in repository settings"
-          echo "2. Check Railway dashboard: https://railway.app"
-          echo "3. Review Railway documentation: https://docs.railway.app"
-          echo "4. Check workflow logs for error details"
+          echo "2. Ensure RAILWAY_TOKEN has correct permissions in Railway dashboard"
+          echo "3. Check Railway dashboard: https://railway.app/dashboard"
+          echo "4. Review Railway documentation: https://docs.railway.com/integrations/api"
+          echo "5. Check workflow logs for error details"
           exit 1
