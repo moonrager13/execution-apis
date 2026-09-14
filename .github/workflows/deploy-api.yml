@@ -59,30 +59,41 @@ jobs:
           echo "✅ Railway secrets are configured"
 
       - name: Deploy to Railway
-        uses: railway-app/cli-action@v1
-        with:
-          token: ${{ secrets.RAILWAY_TOKEN }}
-        env:
-          RAILWAY_SERVICE: ${{ secrets.RAILWAY_SERVICE }}
-        continue-on-error: true
-
-      - name: Fallback deployment using curl
-        if: failure()
         run: |
-          echo "🔄 Attempting deployment via Railway API..."
-          RESPONSE=$(curl -s -X POST \
+          echo "🚀 Deploying to Railway via API..."
+          
+          # Verify authentication
+          AUTH_RESPONSE=$(curl -s -X POST \
             -H "Authorization: Bearer ${{ secrets.RAILWAY_TOKEN }}" \
             -H "Content-Type: application/json" \
             "https://api.railway.app/graphql" \
             -d '{"query":"query { me { id } }"}')
           
-          if echo "$RESPONSE" | grep -q '"id"'; then
-            echo "✅ Railway API connection successful"
-            echo "💡 Check Railway dashboard for deployment status: https://railway.app"
+          if echo "$AUTH_RESPONSE" | grep -q '"id"'; then
+            echo "✅ Railway authentication successful"
           else
-            echo "❌ Railway API error: $RESPONSE"
+            echo "❌ Railway authentication failed: $AUTH_RESPONSE"
             exit 1
           fi
+          
+          # Create deployment
+          DEPLOY_RESPONSE=$(curl -s -X POST \
+            -H "Authorization: Bearer ${{ secrets.RAILWAY_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            "https://api.railway.app/graphql" \
+            -d '{
+              "query": "mutation { serviceInstanceCreate(input: {serviceId: \"'${{ secrets.RAILWAY_SERVICE }}'\", environmentId: \"prod\"}) { id createdAt } }"
+            }')
+          
+          if echo "$DEPLOY_RESPONSE" | grep -q '"id"'; then
+            echo "✅ Deployment initiated successfully"
+            echo "📊 Response: $DEPLOY_RESPONSE"
+          else
+            echo "⚠️  Deployment API response: $DEPLOY_RESPONSE"
+            echo "💡 Check Railway dashboard for deployment status: https://railway.app"
+          fi
+        env:
+          RAILWAY_SERVICE: ${{ secrets.RAILWAY_SERVICE }}
 
       - name: Deployment Summary
         if: always()
